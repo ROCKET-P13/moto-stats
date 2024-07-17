@@ -1,59 +1,32 @@
-import { xml2js } from 'xml-js';
+import { parseString } from 'xml2js';
 import axios from 'axios';
 import _ from 'lodash';
 
 (async () => {
-	const AttributeMap = Object.freeze({
-		B: {
-			dataKey: 'raceData',
-			attributes: {
-				E: 'raceName',
-				T: 'trackName',
-				L: 'location',
-				D: 'date',
-			},
-		},
-		C: { dataKey: 'raceData' },
-		F: {
-			dataKey: 'event',
-			dataType: 'array',
-			attributes: {
-				S: 'eventName',
-			},
-		},
-		R: {
-			dataKey: 'eventData',
-			dataType: 'object',
-			attributes: {
-				FN: 'linkLabel',
-				L: 'link',
-			},
-		},
-	});
 	const foxRaceWayUrl = 'https://americanmotocrossresults.com/xml/mx/events/M2405SchedRes.xml';
 	const { data: xmlResult } = await axios.get(foxRaceWayUrl);
 
-	const jsonFromXml = xml2js(xmlResult, {
-		elementNameFn: (val) => {
-			if (_.some(AttributeMap[val])) {
-				return AttributeMap[val].dataKey;
-			} else {
-				return val;
-			}
-		},
+	parseString(xmlResult, { mergeAttrs: true, explicitArray: false }, (err, result) => {
+		if (err) {
+			console.error(err);
+			return;
+		}
+
+		const eventData = {
+			raceName: result.A.B.E,
+			date: result.A.B.C.D,
+			trackName: result.A.B.T,
+			trackLocation: result.A.B.L,
+			events: _.map(result.A.B.C.F, (event) => ({
+				name: event.S,
+				className: event.CLSNAME,
+				links: _.map(event.R, (link) => ({
+					name: link.FN,
+					url: link.L,
+				})),
+			})),
+		};
+
+		console.log(JSON.stringify(eventData));
 	});
-
-	function flatten (array) {
-		let result = [];
-		array.forEach((element) => {
-			result.push(element);
-			if (Array.isArray(element.elements)) {
-				result = result.concat(flatten(element.elements));
-			}
-		});
-
-		return result;
-	}
-
-	const result = flatten(jsonFromXml.elements);
 })();

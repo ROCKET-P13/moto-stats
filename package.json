@@ -1,0 +1,24 @@
+{
+  "name": "moto-stats",
+  "version": "1.0.0",
+  "description": "Motocross &amp; Supercross Stats Viewer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.7.0",
+    "eslint": "^9.7.0",
+    "globals": "^15.8.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "lodash": "^4.17.21",
+    "pdf2json": "^3.1.3",
+    "xml-js": "^1.6.11"
+  }
+}
